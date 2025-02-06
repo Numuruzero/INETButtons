@@ -1,3 +1,15 @@
+// ==UserScript==
+// @name        INET Input Buttons
+// @namespace   jhutt.com
+// @license     MIT
+// @match       https://www.facilitynet.com/members/customers/installQuote/*
+// @downloadURL https://github.com/Numuruzero/INETButtons/raw/refs/heads/main/INETInput.user.js
+// @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
+// @version     0.1
+// @description A set of buttons to automatically input order info
+// ==/UserScript==
+
+////////////////////////////////////////////////// Universal functions //////////////////////////////////////////////////
 function pasteInfo(data, type) {
     let allInfo
     console.log(data);
@@ -72,42 +84,85 @@ async function pasteData(type) {
     }
 }
 
-// Project Details Button
-const projButton = document.createElement("button");
-projButton.innerHTML = "Paste Details";
-projButton.addEventListener("click", (event) => {
-    event.stopImmediatePropagation();
-    event.preventDefault();
-    pasteData("projDet")
-})
+////////////////////////////////////////////////// Situational actions //////////////////////////////////////////////////
+function addCustInfo() {
+    // Check if "Add New User" dialog is available
+    if (document.querySelector("body > div:nth-child(16)")) {
+        if (document.querySelector("body > div:nth-child(16)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
+            // Info Button
+            const infoButton = document.createElement("button");
+            infoButton.innerHTML = "Paste Info";
+            infoButton.addEventListener("click", (event) => {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                pasteData("compInfo")
+                pasteData("conInfo")
+                pasteData("sitInfo")
+            });
 
-const projDetDiv = document.querySelector("#contentColumn > form > table:nth-child(3)");
-projDetDiv.before(projButton);
+            // Add to Company Info tab
+            const compInfoTab = document.querySelector("#company");
+            const compInfoFrame = document.querySelector("#company > table");
+            compInfoTab.insertBefore(infoButton, compInfoFrame);
 
-// Info Button
-const infoButton = document.createElement("button");
-infoButton.innerHTML = "Paste Info";
-infoButton.addEventListener("click", (event) => {
-    event.stopImmediatePropagation();
-    event.preventDefault();
-    pasteData("compInfo")
-    pasteData("conInfo")
-    pasteData("sitInfo")
+            // Add to Company Info tab
+            const conInfoTab = document.querySelector("#contact")
+            const conInfoFrame = document.querySelector("#contact > table")
+            const conButton = infoButton.cloneNode(true);
+            conInfoTab.insertBefore(conButton, conInfoFrame);
+
+            // Add to Site Conditions tab
+            const sitInfoTab = document.querySelector("#siteconditions")
+            const sitInfoFrame = document.querySelector("#siteconditions > table")
+            const sitButton = infoButton.cloneNode(true);
+            sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+        }
+    }
+}
+
+function addProjectDetails() {
+    // Check if Project Details page is active
+    const projCheck = new RegExp('jobDetails');
+    const url = window.location.href;
+    const onProj = projCheck.test(url);
+
+    if (onProj) {
+        // Project Details Button
+        const projButton = document.createElement("button");
+        projButton.innerHTML = "Paste Details";
+        projButton.addEventListener("click", (event) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            pasteData("projDet")
+        })
+
+        const projDetDiv = document.querySelector("#contentColumn > form > table:nth-child(3)");
+        projDetDiv.before(projButton);
+    }
+}
+
+//Wait until document is sufficiently loaded for Project Description
+const projLoad = VM.observe(document.body, () => {
+    // Find the target node
+    const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
+
+    if (node) {
+        addProjectDetails();
+
+        // disconnect observer
+        return true;
+    }
 });
 
-// Add to Company Info tab
-const compInfoTab = document.querySelector("#company");
-const compInfoFrame = document.querySelector("#company > table");
-compInfoTab.insertBefore(infoButton, compInfoFrame);
+//Wait until document is sufficiently loaded for User Info
+const infoLoad = VM.observe(document.body, () => {
+    // Find the target node
+    const node = document.querySelector("#ui-id-14");
 
-// Add to Company Info tab
-const conInfoTab = document.querySelector("#contact")
-const conInfoFrame = document.querySelector("#contact > table")
-const conButton = infoButton.cloneNode(true);
-conInfoTab.insertBefore(conButton, conInfoFrame);
+    if (node) {
+        addProjectDetails();
 
-// Add to Site Conditions tab
-const sitInfoTab = document.querySelector("#siteconditions")
-const sitInfoFrame = document.querySelector("#siteconditions > table")
-const sitButton = infoButton.cloneNode(true);
-sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+        // disconnect observer
+        return true;
+    }
+});
