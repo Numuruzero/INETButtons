@@ -86,38 +86,56 @@ async function pasteData(type) {
 
 ////////////////////////////////////////////////// Situational actions //////////////////////////////////////////////////
 function addCustInfo() {
-    // Check if "Add New User" dialog is available
-    if (document.querySelector("body > div:nth-child(16)")) {
-        if (document.querySelector("body > div:nth-child(16)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
-            // Info Button
-            const infoButton = document.createElement("button");
-            infoButton.innerHTML = "Paste Info";
-            infoButton.addEventListener("click", (event) => {
-                event.stopImmediatePropagation();
-                event.preventDefault();
-                pasteData("compInfo")
-                pasteData("conInfo")
-                pasteData("sitInfo")
-            });
+    // Create a MutationObserver to determine when the user navigates to creating a new end user
+    // Node contains the floater text
+    const node = document.querySelector("body > div:nth-child(15)");
+    // We only need to look at attributes
+    const config = { attributes: true, characterData: true };
 
-            // Add to Company Info tab
-            const compInfoTab = document.querySelector("#company");
-            const compInfoFrame = document.querySelector("#company > table");
-            compInfoTab.insertBefore(infoButton, compInfoFrame);
+    const callback = (mutationList, observer) => {
+        for (const mutation of mutationList) {
+            // Check if "Add New User" dialog is available
+            if (document.querySelector("body > div:nth-child(15)")) {
+                if (document.querySelector("body > div:nth-child(15)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
+                    // Info Button
+                    const infoButton = document.createElement("button");
+                    infoButton.innerHTML = "Paste Info";
+                    infoButton.addEventListener("click", (event) => {
+                        event.stopImmediatePropagation();
+                        event.preventDefault();
+                        pasteData("compInfo")
+                        pasteData("conInfo")
+                        pasteData("sitInfo")
+                    });
 
-            // Add to Company Info tab
-            const conInfoTab = document.querySelector("#contact")
-            const conInfoFrame = document.querySelector("#contact > table")
-            const conButton = infoButton.cloneNode(true);
-            conInfoTab.insertBefore(conButton, conInfoFrame);
+                    // Add to Company Info tab
+                    const compInfoTab = document.querySelector("#company");
+                    const compInfoFrame = document.querySelector("#company > table");
+                    compInfoTab.insertBefore(infoButton, compInfoFrame);
 
-            // Add to Site Conditions tab
-            const sitInfoTab = document.querySelector("#siteconditions")
-            const sitInfoFrame = document.querySelector("#siteconditions > table")
-            const sitButton = infoButton.cloneNode(true);
-            sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+                    // Add to Company Info tab
+                    const conInfoTab = document.querySelector("#contact")
+                    const conInfoFrame = document.querySelector("#contact > table")
+                    const conButton = infoButton.cloneNode(true);
+                    conInfoTab.insertBefore(conButton, conInfoFrame);
+
+                    // Add to Site Conditions tab
+                    const sitInfoTab = document.querySelector("#siteconditions")
+                    const sitInfoFrame = document.querySelector("#siteconditions > table")
+                    const sitButton = infoButton.cloneNode(true);
+                    sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+                }
+            }
         }
     }
+
+    // Create observer
+    const observer = new MutationObserver(callback);
+
+    // Activate observer
+    observer.observe(node, config);
+
+
 }
 
 function addProjectDetails() {
@@ -141,25 +159,28 @@ function addProjectDetails() {
     }
 }
 
-//Wait until document is sufficiently loaded for Project Description
-const projLoad = VM.observe(document.body, () => {
+//Wait until document is sufficiently loaded for User Info
+const infoLoad = VM.observe(document.body, () => {
     // Find the target node
-    const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
+    const node = document.querySelector("body > div:nth-child(16)");
 
     if (node) {
-        addProjectDetails();
+        console.log("User info loaded");
+        addCustInfo();
 
         // disconnect observer
         return true;
     }
 });
 
-//Wait until document is sufficiently loaded for User Info
-const infoLoad = VM.observe(document.body, () => {
+//Wait until document is sufficiently loaded for Project Description
+const projLoad = VM.observe(document.body, () => {
     // Find the target node
-    const node = document.querySelector("#ui-id-14");
+    // const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
+    const node = document.querySelector("#cke_1_contents > iframe");
 
     if (node) {
+        console.log("Project Details loaded")
         addProjectDetails();
 
         // disconnect observer
