@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////// Universal functions //////////////////////////////////////////////////
 function pasteInfo(data, type) {
     let allInfo
-    console.log(data);
-    console.log(`Data type is ${type}`);
     try {
         allInfo = JSON.parse(data);
     } catch (error) {
@@ -53,75 +51,36 @@ function pasteInfo(data, type) {
     }
 }
 
-async function pasteData(type) {
-    let inetInfo;
-    try {
-        const clipboardContents = await navigator.clipboard.read();
-        for (const item of clipboardContents) {
-            for (const mimeType of item.types) {
-                if (mimeType === "text/plain") {
-                    const blob = await item.getType("text/plain");
-                    const blobText = await blob.text();
-                    inetInfo = blobText;
-                    pasteInfo(inetInfo, type);
-                } else {
-                    throw new Error(`${mimeType} not supported.`);
-                }
-            }
-        }
-    } catch (error) {
-    }
+// Grab the information as a string and return it to pasteInfo along with the job type
+function pasteData(type) {
+    const inetInfo = "REPLACEWIDG19";
+    pasteInfo(inetInfo, type);
 }
 
 ////////////////////////////////////////////////// Situational actions //////////////////////////////////////////////////
-// Check if "Add New User" dialog is available
-if (document.querySelector("body > div:nth-child(16)")) {
-    if (document.querySelector("body > div:nth-child(16)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
-        // Info Button
-        const infoButton = document.createElement("button");
-        infoButton.innerHTML = "Paste Info";
-        infoButton.addEventListener("click", (event) => {
-            event.stopImmediatePropagation();
-            event.preventDefault();
+function addCustInfo() {
+    // Check if "Add New User" dialog is available
+    if (document.querySelector("body > div:nth-child(15)")) {
+        if (document.querySelector("body > div:nth-child(15)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
             pasteData("compInfo")
             pasteData("conInfo")
             pasteData("sitInfo")
-        });
-
-        // Add to Company Info tab
-        const compInfoTab = document.querySelector("#company");
-        const compInfoFrame = document.querySelector("#company > table");
-        compInfoTab.insertBefore(infoButton, compInfoFrame);
-
-        // Add to Company Info tab
-        const conInfoTab = document.querySelector("#contact")
-        const conInfoFrame = document.querySelector("#contact > table")
-        const conButton = infoButton.cloneNode(true);
-        conInfoTab.insertBefore(conButton, conInfoFrame);
-
-        // Add to Site Conditions tab
-        const sitInfoTab = document.querySelector("#siteconditions")
-        const sitInfoFrame = document.querySelector("#siteconditions > table")
-        const sitButton = infoButton.cloneNode(true);
-        sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+        } else {
+            window.alert("Please navigate to the 'Add New End User' section");
+        }
     }
 }
 
-// Check if Project Details page is active
-const projCheck = new RegExp('jobDetails');
-const url = window.location.href;
-const onProj = projCheck.test(url);
+function addProjectDetails() {
+    // Check if Project Details page is active
+    const projCheck = new RegExp('jobDetails');
+    const url = window.location.href;
+    const onProj = projCheck.test(url);
 
-if (onProj) {
-    // Project Details Button
-    const projButton = document.createElement("button");
-    projButton.innerHTML = "Paste Details";
-    projButton.addEventListener("click", (event) => {
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        pasteData("projDet")
-    })
-
-    const projDetDiv = document.querySelector("#contentColumn > form > table:nth-child(3)");
-    projDetDiv.before(projButton);
+    if (onProj) {
+        pasteData("projDet");
+    }
 }
+
+addCustInfo();
+addProjectDetails();
