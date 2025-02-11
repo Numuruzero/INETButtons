@@ -53,7 +53,7 @@ function pasteInfo(data, type) {
 
 // Grab the information as a string and return it to pasteInfo along with the job type
 function pasteData(type) {
-    const inetInfo = 'REPLACEWIDG19';
+    const inetInfo = `REPLACEWIDG19`;
     pasteInfo(inetInfo, type);
 }
 
@@ -65,8 +65,6 @@ function addCustInfo() {
             pasteData('compInfo')
             pasteData('conInfo')
             pasteData('sitInfo')
-        } else {
-            window.alert(`Please navigate to the 'Add New End User' section`);
         }
     }
 }
