@@ -3,7 +3,7 @@
 // @namespace   jhutt.com
 // @license     MIT
 // @match       https://www.facilitynet.com/members/customers/installQuote/*
-// @downloadURL https://github.com/Numuruzero/INETButtons/raw/refs/heads/main/INETInput.user.js
+// @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @version     0.1
 // @description A set of buttons to automatically input order info
