@@ -5,7 +5,7 @@
 // @match       https://www.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.1
+// @version     0.2
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
@@ -88,18 +88,19 @@ async function pasteData(type) {
 function addCustInfo() {
     // Create a MutationObserver to determine when the user navigates to creating a new end user
     // Node contains the floater text
-    const node = document.querySelector("body > div:nth-child(15)");
+    const node = document.querySelector('body > div[aria-labelledby="ui-id-9"]');
     // We only need to look at attributes
     const config = { attributes: true, characterData: true };
 
     const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
             // Check if "Add New User" dialog is available
-            if (document.querySelector("body > div:nth-child(15)")) {
-                if (document.querySelector("body > div:nth-child(15)").style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
+            if (node) {
+                if (node.style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
                     // Info Button
                     const infoButton = document.createElement("button");
                     infoButton.innerHTML = "Paste Info";
+                    infoButton.className = "pastebutton";
                     infoButton.addEventListener("click", (event) => {
                         event.stopImmediatePropagation();
                         event.preventDefault();
@@ -108,22 +109,24 @@ function addCustInfo() {
                         pasteData("sitInfo")
                     });
 
-                    // Add to Company Info tab
-                    const compInfoTab = document.querySelector("#company");
-                    const compInfoFrame = document.querySelector("#company > table");
-                    compInfoTab.insertBefore(infoButton, compInfoFrame);
+                    if (document.getElementsByClassName("pastebutton").length < 3) {
+                        // Add to Company Info tab
+                        const compInfoTab = document.querySelector("#company");
+                        const compInfoFrame = document.querySelector("#company > table");
+                        compInfoTab.insertBefore(infoButton, compInfoFrame);
 
-                    // Add to Company Info tab
-                    const conInfoTab = document.querySelector("#contact")
-                    const conInfoFrame = document.querySelector("#contact > table")
-                    const conButton = infoButton.cloneNode(true);
-                    conInfoTab.insertBefore(conButton, conInfoFrame);
+                        // Add to Company Info tab
+                        const conInfoTab = document.querySelector("#contact")
+                        const conInfoFrame = document.querySelector("#contact > table")
+                        const conButton = infoButton.cloneNode(true);
+                        conInfoTab.insertBefore(conButton, conInfoFrame);
 
-                    // Add to Site Conditions tab
-                    const sitInfoTab = document.querySelector("#siteconditions")
-                    const sitInfoFrame = document.querySelector("#siteconditions > table")
-                    const sitButton = infoButton.cloneNode(true);
-                    sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+                        // Add to Site Conditions tab
+                        const sitInfoTab = document.querySelector("#siteconditions")
+                        const sitInfoFrame = document.querySelector("#siteconditions > table")
+                        const sitButton = infoButton.cloneNode(true);
+                        sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+                    }
                 }
             }
         }
