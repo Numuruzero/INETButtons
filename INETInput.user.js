@@ -5,25 +5,25 @@
 // @match       https://www.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.2
+// @version     0.3
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
+
+const url = window.location.href;
 
 ////////////////////////////////////////////////// Universal functions //////////////////////////////////////////////////
 function pasteInfo(data, type) {
     let allInfo
-    console.log(data);
     console.log(`Data type is ${type}`);
     try {
         allInfo = JSON.parse(data);
     } catch (error) {
         console.log(error);
     }
-    console.log(allInfo);
     // Company Info input
     if (type == "compInfo") {
-        document.querySelector("#company > table > tbody > tr:nth-child(3) > td:nth-child(2) > input[type=text]").value = allInfo.compInfo.company;
-        document.querySelector("#company > table > tbody > tr:nth-child(4) > td:nth-child(2) > input:nth-child(1)").value = allInfo.compInfo.phone;
+        document.querySelector("input[name='company_name']").value = allInfo.compInfo.company;
+        document.querySelector("input[name='company_phone_raw']").value = allInfo.compInfo.phone;
         document.querySelector("#saddress1").value = allInfo.compInfo.street;
         document.querySelector("#saddress2").value = allInfo.compInfo.suite;
         document.querySelector("#scity").value = allInfo.compInfo.city;
@@ -32,17 +32,17 @@ function pasteInfo(data, type) {
     }
     // Contact Info input
     if (type == "conInfo") {
-        document.querySelector("#contact > table > tbody > tr:nth-child(3) > td:nth-child(2) > input[type=text]").value = allInfo.conInfo.fname;
-        document.querySelector("#contact > table > tbody > tr:nth-child(4) > td:nth-child(2) > input[type=text]").value = allInfo.conInfo.lname;
-        document.querySelector("#contact > table > tbody > tr:nth-child(6) > td:nth-child(2) > input:nth-child(1)").value = allInfo.conInfo.phone;
-        document.querySelector("#contact > table > tbody > tr:nth-child(9) > td:nth-child(2) > input[type=text]").value = allInfo.conInfo.email;
+        document.querySelector("input[name='contact_first']").value = allInfo.conInfo.fname;
+        document.querySelector("input[name='contact_last']").value = allInfo.conInfo.lname;
+        document.querySelector("input[name='business_phone_raw']").value = allInfo.conInfo.phone;
+        document.querySelector("input[name='email']").value = allInfo.conInfo.email;
     }
     // Site Conditions input
     if (type == "sitInfo") {
-        document.querySelector("#siteconditions > table > tbody > tr:nth-child(1) > td:nth-child(3) > label:nth-child(1) > input[type=checkbox]").checked = allInfo.sitInfo.coi;
-        document.querySelector("#siteconditions > table > tbody > tr:nth-child(1) > td:nth-child(3) > label:nth-child(11) > input[type=checkbox]").checked = allInfo.sitInfo.dock;
-        document.querySelector("#siteconditions > table > tbody > tr:nth-child(1) > td:nth-child(2) > label:nth-child(9) > input[type=checkbox]").checked = allInfo.sitInfo.elevator;
-        document.querySelector("#siteconditions > table > tbody > tr:nth-child(1) > td:nth-child(3) > label:nth-child(15) > input[type=text]").value = allInfo.sitInfo.stairs;
+        document.querySelector("#certOfInsurancePropertyMgmt").checked = allInfo.sitInfo.coi;
+        document.querySelector("#noLoadingDock").checked = allInfo.sitInfo.dock;
+        document.querySelector("#elevator").checked = allInfo.sitInfo.elevator;
+        document.querySelector("input[name='num_of_steps']").value = allInfo.sitInfo.stairs;
     }
     // Project Details input
     if (type == "projDet") {
@@ -56,7 +56,7 @@ function pasteInfo(data, type) {
             document.querySelector("#detail_17").checked = allInfo.projDet.afterhrs;
             document.querySelector("#detail_1").checked = allInfo.projDet.afterhrs;
             document.querySelector("#detail_2").checked = allInfo.projDet.exclusive;
-            document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body").innerHTML = allInfo.projDet.sow;
+            document.querySelector("#job_description_ifr").contentDocument.querySelector("body").innerHTML = allInfo.projDet.sow;
             document.querySelector("#dealer_po_number").value = allInfo.projDet.po;
         } catch (error) {
             console.log(error);
@@ -167,7 +167,7 @@ const infoLoad = VM.observe(document.body, () => {
     // Find the target node
     const node = document.querySelector("body > div:nth-child(16)");
 
-    if (node) {
+    if (node && !url.includes("jobDetails")) {
         console.log("User info loaded");
         addCustInfo();
 
@@ -180,9 +180,9 @@ const infoLoad = VM.observe(document.body, () => {
 const projLoad = VM.observe(document.body, () => {
     // Find the target node
     // const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
-    const node = document.querySelector("#cke_1_contents > iframe");
+    const node = document.querySelector("#job_description_ifr");
 
-    if (node) {
+    if (node && url.includes("jobDetails")) {
         console.log("Project Details loaded")
         addProjectDetails();
 
