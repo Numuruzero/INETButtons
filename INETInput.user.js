@@ -5,7 +5,7 @@
 // @match       https://www.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.3
+// @version     0.4
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
@@ -42,7 +42,7 @@ function pasteInfo(data, type) {
         document.querySelector("#certOfInsurancePropertyMgmt").checked = allInfo.sitInfo.coi;
         document.querySelector("#noLoadingDock").checked = allInfo.sitInfo.dock;
         document.querySelector("#elevator").checked = allInfo.sitInfo.elevator;
-        document.querySelector("input[name='num_of_steps']").value = allInfo.sitInfo.stairs;
+        if (allInfo.sitInfo.stairs != 0) { document.querySelector("input[name='num_of_steps']").value = allInfo.sitInfo.stairs };
     }
     // Project Details input
     if (type == "projDet") {
