@@ -2,10 +2,10 @@
 // @name        INET Input Buttons
 // @namespace   jhutt.com
 // @license     MIT
-// @match       https://www.facilitynet.com/members/customers/installQuote/*
+// @match       https://*.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.4
+// @version     0.41
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
