@@ -5,7 +5,7 @@
 // @match       https://*.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.41
+// @version     0.5
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
@@ -53,8 +53,8 @@ function pasteInfo(data, type) {
             document.querySelector("#type_1").checked = allInfo.projDet.rdi;
             document.querySelector("#type_4").checked = allInfo.projDet.roc;
             document.querySelector("#type_3").checked = allInfo.projDet.ins;
-            document.querySelector("#detail_17").checked = allInfo.projDet.afterhrs;
-            document.querySelector("#detail_1").checked = allInfo.projDet.afterhrs;
+            document.querySelector("#detail_17").checked = allInfo.projDet.afterhrsdel;
+            document.querySelector("#detail_1").checked = allInfo.projDet.afterhrsins;
             document.querySelector("#detail_2").checked = allInfo.projDet.exclusive;
             document.querySelector("#job_description_ifr").contentDocument.querySelector("body").innerHTML = allInfo.projDet.sow;
             document.querySelector("#dealer_po_number").value = allInfo.projDet.po;
