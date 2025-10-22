@@ -5,7 +5,7 @@
 // @match       https://*.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.5
+// @version     0.6
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
@@ -88,15 +88,17 @@ async function pasteData(type) {
 function addCustInfo() {
     // Create a MutationObserver to determine when the user navigates to creating a new end user
     // Node contains the floater text
-    const node = document.querySelector('body > div[aria-labelledby="ui-id-9"]');
-    // We only need to look at attributes
+    // const node = document.querySelector('body > div[aria-labelledby="ui-id-9"]');    // We only need to look at attributes
+    const node = document.querySelector("body > div[aria-describedby='divSelect']");
     const config = { attributes: true, characterData: true };
 
     const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
             // Check if "Add New User" dialog is available
             if (node) {
-                if (node.style.display != 'none' && document.querySelector("#ui-id-9").innerHTML == 'Add New End User') {
+                const ar = Array.from(document.querySelectorAll("span[class='ui-dialog-title']"));
+                const endUserHeader = ar.find(span => span.textContent === "Add New End User");
+                if (node.style.display != 'none' && endUserHeader.innerHTML == 'Add New End User') {
                     // Info Button
                     const infoButton = document.createElement("button");
                     infoButton.innerHTML = "Paste Info";
@@ -165,7 +167,11 @@ function addProjectDetails() {
 //Wait until document is sufficiently loaded for User Info
 const infoLoad = VM.observe(document.body, () => {
     // Find the target node
-    const node = document.querySelector("body > div:nth-child(16)");
+    // We're looking for the popup that is created when we go to add an end user
+    // const node = document.querySelector("body > div:nth-child(16)");
+    const node = document.querySelector("body > div[aria-describedby='divSelect']");
+    // const node = document.querySelector("#divSelect");
+    // const node = document.querySelector("#company");
 
     if (node && !url.includes("jobDetails")) {
         console.log("User info loaded");
