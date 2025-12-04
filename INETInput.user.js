@@ -5,11 +5,12 @@
 // @match       https://*.facilitynet.com/members/customers/installQuote/*
 // @downloadURL https://raw.githubusercontent.com/Numuruzero/INETButtons/refs/heads/main/INETInput.user.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     0.6
+// @version     0.7
 // @description A set of buttons to automatically input order info
 // ==/UserScript==
 
 const url = window.location.href;
+const context = "userscript";
 
 ////////////////////////////////////////////////// Universal functions //////////////////////////////////////////////////
 function pasteInfo(data, type) {
@@ -81,6 +82,7 @@ async function pasteData(type) {
             }
         }
     } catch (error) {
+        console.error(error)
     }
 }
 
@@ -92,45 +94,51 @@ function addCustInfo() {
     const node = document.querySelector("body > div[aria-describedby='divSelect']");
     const config = { attributes: true, characterData: true };
 
+    // Create a function to add the paste buttons, try it once for bookmarklet purposes and again in the observer
+    function addPasteButtons() {
+        if (node) {
+            const ar = Array.from(document.querySelectorAll("span[class='ui-dialog-title']"));
+            const endUserHeader = ar.find(span => span.textContent === "Add New End User");
+            if (node.style.display != 'none' && endUserHeader.innerHTML == 'Add New End User') {
+                // Info Button
+                const infoButton = document.createElement("button");
+                infoButton.innerHTML = "Paste Info";
+                infoButton.className = "pastebutton";
+                infoButton.addEventListener("click", (event) => {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    pasteData("compInfo")
+                    pasteData("conInfo")
+                    pasteData("sitInfo")
+                });
+
+                if (document.getElementsByClassName("pastebutton").length < 3) {
+                    // Add to Company Info tab
+                    const compInfoTab = document.querySelector("#company");
+                    const compInfoFrame = document.querySelector("#company > table");
+                    compInfoTab.insertBefore(infoButton, compInfoFrame);
+
+                    // Add to Company Info tab
+                    const conInfoTab = document.querySelector("#contact")
+                    const conInfoFrame = document.querySelector("#contact > table")
+                    const conButton = infoButton.cloneNode(true);
+                    conInfoTab.insertBefore(conButton, conInfoFrame);
+
+                    // Add to Site Conditions tab
+                    const sitInfoTab = document.querySelector("#siteconditions")
+                    const sitInfoFrame = document.querySelector("#siteconditions > table")
+                    const sitButton = infoButton.cloneNode(true);
+                    sitInfoTab.insertBefore(sitButton, sitInfoFrame);
+                }
+            }
+        }
+    }
+    addPasteButtons();
+
     const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
             // Check if "Add New User" dialog is available
-            if (node) {
-                const ar = Array.from(document.querySelectorAll("span[class='ui-dialog-title']"));
-                const endUserHeader = ar.find(span => span.textContent === "Add New End User");
-                if (node.style.display != 'none' && endUserHeader.innerHTML == 'Add New End User') {
-                    // Info Button
-                    const infoButton = document.createElement("button");
-                    infoButton.innerHTML = "Paste Info";
-                    infoButton.className = "pastebutton";
-                    infoButton.addEventListener("click", (event) => {
-                        event.stopImmediatePropagation();
-                        event.preventDefault();
-                        pasteData("compInfo")
-                        pasteData("conInfo")
-                        pasteData("sitInfo")
-                    });
-
-                    if (document.getElementsByClassName("pastebutton").length < 3) {
-                        // Add to Company Info tab
-                        const compInfoTab = document.querySelector("#company");
-                        const compInfoFrame = document.querySelector("#company > table");
-                        compInfoTab.insertBefore(infoButton, compInfoFrame);
-
-                        // Add to Company Info tab
-                        const conInfoTab = document.querySelector("#contact")
-                        const conInfoFrame = document.querySelector("#contact > table")
-                        const conButton = infoButton.cloneNode(true);
-                        conInfoTab.insertBefore(conButton, conInfoFrame);
-
-                        // Add to Site Conditions tab
-                        const sitInfoTab = document.querySelector("#siteconditions")
-                        const sitInfoFrame = document.querySelector("#siteconditions > table")
-                        const sitButton = infoButton.cloneNode(true);
-                        sitInfoTab.insertBefore(sitButton, sitInfoFrame);
-                    }
-                }
-            }
+            addPasteButtons()
         }
     }
 
@@ -164,35 +172,48 @@ function addProjectDetails() {
     }
 }
 
-//Wait until document is sufficiently loaded for User Info
-const infoLoad = VM.observe(document.body, () => {
-    // Find the target node
-    // We're looking for the popup that is created when we go to add an end user
-    // const node = document.querySelector("body > div:nth-child(16)");
-    const node = document.querySelector("body > div[aria-describedby='divSelect']");
-    // const node = document.querySelector("#divSelect");
-    // const node = document.querySelector("#company");
+if (context === "userscript") {
+    console.log("Userscript");
+    //Wait until document is sufficiently loaded for User Info
+    const infoLoad = VM.observe(document.body, () => {
+        // Find the target node
+        // We're looking for the popup that is created when we go to add an end user
+        // const node = document.querySelector("body > div:nth-child(16)");
+        const node = document.querySelector("body > div[aria-describedby='divSelect']");
+        // const node = document.querySelector("#divSelect");
+        // const node = document.querySelector("#company");
 
-    if (node && !url.includes("jobDetails")) {
+        if (node && !url.includes("jobDetails")) {
+            console.log("User info loaded");
+            addCustInfo();
+
+            // disconnect observer
+            return true;
+        }
+    });
+    //Wait until document is sufficiently loaded for Project Description
+    const projLoad = VM.observe(document.body, () => {
+        // Find the target node
+        // const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
+        const node = document.querySelector("#job_description_ifr");
+
+        if (node && url.includes("jobDetails")) {
+            console.log("Project Details loaded")
+            addProjectDetails();
+
+            // disconnect observer
+            return true;
+        }
+    });
+} else {
+    console.log("Bookmarklet");
+    if (!url.includes("jobDetails")) {
         console.log("User info loaded");
         addCustInfo();
-
-        // disconnect observer
-        return true;
     }
-});
 
-//Wait until document is sufficiently loaded for Project Description
-const projLoad = VM.observe(document.body, () => {
-    // Find the target node
-    // const node = document.querySelector("#cke_1_contents > iframe").contentDocument.querySelector("body");
-    const node = document.querySelector("#job_description_ifr");
-
-    if (node && url.includes("jobDetails")) {
+    if (url.includes("jobDetails")) {
         console.log("Project Details loaded")
         addProjectDetails();
-
-        // disconnect observer
-        return true;
     }
-});
+}
