@@ -10,7 +10,10 @@
 // ==/UserScript==
 
 const url = window.location.href;
-const context = "userscript";
+
+// Bookmarklet check
+let context;
+typeof GM !== 'undefined' ? context = "userscript" : context = "bookmarklet";
 
 ////////////////////////////////////////////////// Universal functions //////////////////////////////////////////////////
 function pasteInfo(data, type) {
